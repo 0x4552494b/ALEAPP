@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("*/data/system/netstats/uid*"),
         "output_types": ["html"],
+        "artifact_icon": "bar-chart-2",
         "function": "parse_netstats"
     }}
 
@@ -25,7 +26,7 @@ from enum import Enum
 import mutf8
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, convert_unix_ts_to_utc
+from scripts.ilapfuncs import logfunc, convert_unix_ts_to_utc, artifact_processor
 
 
 # NetworkIdentity type labels
@@ -122,8 +123,8 @@ def read_optional_mutf(stream):
         size = struct.unpack('>H', stream.read(2))[0]
         return mutf8.decode_modified_utf8(stream.read(size))
 
-
-def parse_netstats(files_found, report_folder, _seeker, _wrap_text):
+@artifact_processor
+def netstats(files_found, report_folder, _seeker, _wrap_text):
     """
     Parses NetworkStats files
 
@@ -201,8 +202,8 @@ def parse_netstats(files_found, report_folder, _seeker, _wrap_text):
                     buckets.append(bucket)
                 entries.append({'network_identities': network_identities, 'buckets': buckets, 'file_found': file})
 
-    report = ArtifactHtmlReport('NetworkStats')
-    report.start_artifact_report(report_folder, 'NetworkStats')
+    report = ArtifactHtmlReport('Android NetworkStats')
+    report.start_artifact_report(report_folder, 'Android NetworkStats')
     report.add_script()
 
     for entry in entries:
@@ -256,3 +257,8 @@ def parse_netstats(files_found, report_folder, _seeker, _wrap_text):
              'totalBytes'],
             [[f(col) for f, col in zip(bucket_converters, e.values())] for e in entry['buckets']],
             None, False, False, False, False)
+
+    report.end_artifact_report()
+
+    # Artifact icon is currently only evaluated in ilapfuncs.py#L490 if source_path and data_list are not None, so we need to return some dummy data.
+    return None, [None, ], True

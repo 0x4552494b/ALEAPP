@@ -624,7 +624,6 @@ icon_mappings = \
         'NETFLIX - SEARCH HISTORY': 'search',
         'default': 'tv'
     },
-    'NETSTATS': 'bar-chart-2',
     'NETWORK USAGE': {
         'APP_DATA': 'activity',
         'CONNECTIONS': 'bar-chart',
